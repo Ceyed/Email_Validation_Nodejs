@@ -7,22 +7,24 @@ async function validateCode(userEmail, inputValidationCode) {
         const savedValidationCode = await giveMeValidationCode(userEmail)
         if (savedValidationCode == null) {
             // * Email not founded
-            // response.send('Email not founded')
-            return
+            return false
         }
         else {
             // * Check saved validation code to given validation code
             if (savedValidationCode == inputValidationCode) {
                 // * Activate email
                 if (await validateEmail(userEmail) == true) {
-                    console.log(`The email ${userEmail} has got validate`)
+                    // * The email has got validate
+                    return true
                 }
                 else {
-                    console.log("Something went wrong, email didn't validate");
+                    // * Something went wrong, email didn't validate
+                    return false
                 }
             }
             else {
-                console.log("Validation code is not valid")
+                // * Validation code is not valid
+                return false
             }
         }
     }

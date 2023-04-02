@@ -30,7 +30,7 @@ function codeRegexValidation(validateCode) {
     if (!validateCode)
         return false
 
-    var valid = validateCodeRegex.test(email)
+    var valid = validateCodeRegex.test(validateCode)
     if (!valid)
         return false
 

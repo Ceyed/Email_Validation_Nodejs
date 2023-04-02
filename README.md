@@ -3,7 +3,7 @@ An email authorization program using NodeJs - Generate random number and email i
 
 
 ## TODO:
-- [ ] 1. Regex for each input parameters
+- [x] 1. Regex for each input parameters
 - [x] 2. User a better structure in files
 - [x] 3. More clear app.js
 - [x] 4. Use 'dotenv' instead of 'config'

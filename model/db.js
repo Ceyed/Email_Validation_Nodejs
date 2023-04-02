@@ -26,14 +26,7 @@ async function emailAlreadyValidated(userEmail) {
         })
 
         // * Create connection to database
-        try {
-            await client.connect()
-        }
-        catch (error) {
-            console.error(error.stack)
-            await client.end()
-            return false
-        }
+        await client.connect()
 
         // * Create table every time just incase
         await client.query(createTableQuery)
@@ -140,7 +133,7 @@ async function giveMeValidationCode(userEmail) {
         await client.query(createTableQuery)
 
         // * Read saved code from database and return it
-        const getValidationCodeQuery = `SELECT code FROM ${process.env.TABLE_NAME} WHERE email = ${userEmail};`
+        const getValidationCodeQuery = `SELECT code FROM ${process.env.TABLE_NAME} WHERE email = '${userEmail}';`
         const validationCodeResponse = await client.query(getValidationCodeQuery)
         if (validationCodeResponse.rowCount == 0) {
             // * Not found email
@@ -182,21 +175,14 @@ async function validateEmail(userEmail) {
         })
 
         // * Create connection to database
-        try {
-            await client.connect()
-        }
-        catch (error) {
-            console.error(error.stack)
-            await client.end()
-            return false
-        }
+        await client.connect()
 
         // * Create table every time just incase
         await client.query(createTableQuery)
 
         // * Valid email
         try {
-            const getValidationCodeQuery = `UPDATE ${process.env.TABLE_NAME} SET validated = '1' WHERE email = ${userEmail};`
+            const getValidationCodeQuery = `UPDATE ${process.env.TABLE_NAME} SET validated = '1' WHERE email = '${userEmail}';`
             await client.query(getValidationCodeQuery)
             // * Close connection to database and return validation code
             await client.end()
