@@ -1,72 +1,66 @@
 var express = require('express')
 var app = express()
 
-const { saveCodeToDB, giveMeVerifyCode, activateEmail, emailAlreadyValidated } = require('./db')
-const { sendEmail } = require('./send_email')
-const { emailRegexValidation } = require("./emailRegexValidation")
+const bodyParser = require('body-parser')
+app.use(bodyParser.json())
+
+const { sendCode } = require('./controller/sendCode')
+const { validateCode } = require('./controller/validateCode')
+const { emailRegexValidation, codeRegexValidation } = require("./controller/regexValidation.js")
 
 
-// sample_url = "http://localhost:3000/send?email=saeed.sarmad.976@gmail.com"
+app.post('/send', async (request, response) => {
+    try {
+        const { userEmail } = request.body
 
+        // * Regex validation
+        if (await emailRegexValidation(userEmail) == false) {
+            // * Invalid email
+            response.send('Error: Can not send email. Make sure your email address is valid');
+            return false
+        }
 
-app.get('/send', async function (req) {
-    // * Read user email address & generate verify code to save it with email address in database
-    userEmail = req.query.email
-    if (await emailRegexValidation(userEmail) == false) {
-        console.log("Invalid email")
-        return false
+        const sendCodeResponse = await sendCode(request, userEmail)
+
+        if (sendCodeResponse == true) {
+            response.send('Email sent');
+        }
+        else if (sendCodeResponse == false) {
+            response.send('Error: Can not send email. Make sure your email address is valid');
+        }
+        else if (sendCodeResponse == "activated") {
+            response.send('Email already activated');
+        }
+        else {
+            response.send('Error 12: Unexpected error accrued. Please contact admin')
+        }
     }
-
-    // * Check if email already validated
-    if (await emailAlreadyValidated(userEmail) == true) {
-        console.log("Email is already validated")
+    catch (error) {
+        response.send('Error 8: Unexpected error accrued. Please contact admin')
+        // console.log(error);
         return
     }
-
-    randomNumber = await saveCodeToDB(userEmail)
-
-    // * Creating verify link to email it
-    host = req.get('host')
-    link = "http://" + req.get('host') + "/verify?email='" + userEmail + "'&verify_code=" + randomNumber
-
-    // * Email verify link to user
-    sendEmail(userEmail, link)
-        .then((result) => console.log('Email sent...', result))
-        .catch((error) => console.log(error.message))
-
 })
 
 
-app.get('/verify', async function (req, res) {
-    if ((req.protocol + "://" + req.get('host')) == ("http://" + host)) {
-        console.log("Domain is matched. Information is from Authentic email")
+app.get('/validate', async function (request, response) {
+    try {
+        // * Read email and validate code from url
+        const userEmail = request.query.email
+        const inputValidateCode = request.query.validation_code.toString()
 
-        // * Read email and verify code from url
-        userEmail = req.query.email
-        verifyCode = req.query.verify_code.toString()
-        // console.log(`Got email: ${userEmail}`)
-        // console.log(`Got code: ${verifyCode}`)
+        // // * Regex validation
+        // if (await emailRegexValidation(userEmail) == false || await codeRegexValidation(inputValidateCode) == false) {
+        //     // * Invalid email
+        //     response.send('Error: Can not validate email. Click on the validation link again');
+        //     return false
+        // }
 
-        // * Read saved verify code in database
-        savedVerifyCode = await giveMeVerifyCode(userEmail)
-        if (savedVerifyCode == null) {
-            console.log("Email not founded");
-        }
-        else {
-            // * Check saved verify code to given verify code
-            if (savedVerifyCode == verifyCode) {
-                // * Activate email
-                if (await activateEmail(userEmail) == true) {
-                    console.log(`Email ${userEmail} verified`)
-                }
-                else {
-                    console.log("Something went wrong, email not activated");
-                }
-            }
-            else {
-                console.log("Verify code is not valid")
-            }
-        }
+        validateCode(userEmail, inputValidateCode)
+    }
+    catch {
+        response.send('error 9: Unexpected error accrued. Please contact admin')
+        return
     }
 })
 

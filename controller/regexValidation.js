@@ -1,4 +1,4 @@
-var emailRegex = /^[-!#$%&'*+\/0-9=?A-Z^_a-z{|}~](\.?[-!#$%&'*+\/0-9=?A-Z^_a-z`{|}~])*@[a-zA-Z0-9](-*\.?[a-zA-Z0-9])*\.[a-zA-Z](-?[a-zA-Z0-9])+$/
+const emailRegex = /^[-!#$%&'*+\/0-9=?A-Z^_a-z{|}~](\.?[-!#$%&'*+\/0-9=?A-Z^_a-z`{|}~])*@[a-zA-Z0-9](-*\.?[a-zA-Z0-9])*\.[a-zA-Z](-?[a-zA-Z0-9])+$/
 
 function emailRegexValidation(email) {
     if (!email)
@@ -24,6 +24,20 @@ function emailRegexValidation(email) {
 }
 
 
+const validateCodeRegex = /\d{8}$/
+
+function codeRegexValidation(validateCode) {
+    if (!validateCode)
+        return false
+
+    var valid = validateCodeRegex.test(email)
+    if (!valid)
+        return false
+
+    return true
+}
+
 module.exports = {
     emailRegexValidation,
+    codeRegexValidation,
 }
