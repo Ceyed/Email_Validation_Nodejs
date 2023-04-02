@@ -7,9 +7,52 @@ const createTableQuery = `
         "id" SERIAL PRIMARY KEY,
         "email" VARCHAR(50) NOT NULL,
         "code" VARCHAR(8) NOT NULL,
-        "activated" BOOL DEFAULT '0',
-        "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+        "validated" BOOL DEFAULT '0',
+        "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        "modified_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )`
+
+
+async function emailAlreadyValidated(userEmail) {
+    // * Create client object
+    const client = new Client({
+        host: "localhost",
+        user: DB_USERNAME,
+        port: DB_PORT,
+        password: DB_PASSWORD,
+        database: DB_DATABASE
+    })
+
+    // * Create connection to database
+    try {
+        await client.connect()
+    }
+    catch (error) {
+        console.error(error.stack)
+        await client.end()
+        return false
+    }
+
+    // * Create table every time just incase
+    await client.query(createTableQuery)
+
+    // * Check if email exists
+    const checkIfEmailExistsQuery = `SELECT COUNT(*) FROM ${TABLE_NAME} WHERE email = '${userEmail}';`
+    const existenceResponse = await client.query(checkIfEmailExistsQuery)
+    if (existenceResponse.rows[0].count == 0) {
+        // * Not founded
+        await client.end()
+        return false
+    }
+    else {
+        // * Founded
+        const emailIsValidQuery = `SELECT validated FROM ${TABLE_NAME} WHERE email = '${userEmail}';`
+        const emailIsValidResponse = await client.query(emailIsValidQuery)
+        await client.end()
+        return emailIsValidResponse.rows[0].validated
+    }
+}
+
 
 async function saveCodeToDB(userEmail) {
     // * Create client object
@@ -123,20 +166,20 @@ async function activateEmail(userEmail) {
     // * Create table every time just incase
     await client.query(createTableQuery)
 
-    // * Active email
-    var activated = null
+    // * Valid email
     try {
-        const getVerifyCodeQuery = `UPDATE ${TABLE_NAME} SET activated = '1' WHERE email = ${userEmail};`
+        const getVerifyCodeQuery = `UPDATE ${TABLE_NAME} SET validated = '1' WHERE email = ${userEmail};`
         await client.query(getVerifyCodeQuery)
-        activated = true
+        // * Close connection to database and return verify code
+        await client.end()
+        return true
     }
     catch {
-        activated = false
+        // * Close connection to database and return verify code
+        await client.end()
+        return false
     }
 
-    // * Close connection to database and return verify code
-    await client.end()
-    return activated
 }
 
 
@@ -144,4 +187,5 @@ module.exports = {
     saveCodeToDB,
     giveMeVerifyCode,
     activateEmail,
+    emailAlreadyValidated,
 }

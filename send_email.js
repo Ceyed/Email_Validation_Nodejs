@@ -34,7 +34,7 @@ async function sendEmail(receiver, verifyCode) {
         const mailOptions = {
             from: 'Ceyed <noreply@gmail.com>',                              // TODO: Change 'Ceyed <noreply@gmail.com>'
             to: receiver,
-            subject: "Please confirm your Email account",
+            subject: "Please confirm your email account",
             html: "<h3> Hello There <br> Please click on the link bellow to verify your email: <br><a href=" + verifyCode + ">Click here to verify</a><br><br> Respectfully <br> Ceyed | https://github.com/Ceyed <br></h3>"
         }
 

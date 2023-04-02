@@ -1,7 +1,7 @@
 var express = require('express')
 var app = express()
 
-const { saveCodeToDB, giveMeVerifyCode, activateEmail } = require('./db')
+const { saveCodeToDB, giveMeVerifyCode, activateEmail, emailAlreadyValidated } = require('./db')
 const { sendEmail } = require('./send_email')
 const { emailRegexValidation } = require("./emailRegexValidation")
 
@@ -12,9 +12,15 @@ const { emailRegexValidation } = require("./emailRegexValidation")
 app.get('/send', async function (req) {
     // * Read user email address & generate verify code to save it with email address in database
     userEmail = req.query.email
-    if (emailRegexValidation(userEmail) == false) {
-        console.log("Invalid email");
-        return false;
+    if (await emailRegexValidation(userEmail) == false) {
+        console.log("Invalid email")
+        return false
+    }
+
+    // * Check if email already validated
+    if (await emailAlreadyValidated(userEmail) == true) {
+        console.log("Email is already validated")
+        return
     }
 
     randomNumber = await saveCodeToDB(userEmail)
