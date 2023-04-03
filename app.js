@@ -11,6 +11,7 @@ const { emailRegexValidation, codeRegexValidation } = require("./controller/rege
 
 app.post('/send', async (request, response) => {
     try {
+        console.log('1');
         const { userEmail } = request.body
 
         // * Regex validation
@@ -20,10 +21,14 @@ app.post('/send', async (request, response) => {
             response.send('Error: Can not send email. Make sure your email address is valid');
             return false
         }
+        console.log('2');
 
         const sendCodeResponse = await sendCode(request, userEmail)
 
+        console.log('3');
+
         if (sendCodeResponse == true) {
+            console.log('4');
             response.send('Email sent')
         }
         else if (sendCodeResponse == false) {

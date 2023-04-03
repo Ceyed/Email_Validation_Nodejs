@@ -10,11 +10,15 @@ async function sendCode(request, userEmail) {
             return "activated"
         }
 
+        console.log('2 1');
+
         // * Creating and saving random number in database
         const randomNumber = await saveCodeToDB(userEmail)
         if (randomNumber == false) {
             return false
         }
+
+        console.log('2 2');
 
         // * Creating validation link to email it
         const host = request.header('host')
@@ -25,6 +29,8 @@ async function sendCode(request, userEmail) {
         await sendEmail(userEmail, link)
             .then((result) => sendEmailResponse = true)
             .catch((error) => sendEmailResponse = false)
+
+        console.log('2 3');
 
         return sendEmailResponse
     }
