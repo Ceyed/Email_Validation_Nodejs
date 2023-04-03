@@ -1,18 +1,27 @@
 const { saveCodeToDB, emailAlreadyValidated } = require('../model/db')
 const { sendEmail } = require('./send_email')
+const { emailRegexValidation } = require('./regexValidation')
 
 
-async function sendCode(request, userEmail) {
+async function sendCode(request, response, userEmail) {
     try {
+        // * Regex validation
+        const emailRegexResult = await emailRegexValidation(userEmail)
+        if (emailRegexResult == false) {
+            response.send('Error: Can not send email. Make sure your email address is valid');
+            return false
+        }
+
         // * Check if email already validated
         if (await emailAlreadyValidated(userEmail) == true) {
-            // * Already validated
-            return 'activated'
+            response.send('Email already activated')
+            return false
         }
 
         // * Creating and saving random number in database
         const randomNumber = await saveCodeToDB(userEmail)
         if (randomNumber == false) {
+            response.send('Error: Couldn\'t send email')
             return false
         }
 
@@ -21,14 +30,12 @@ async function sendCode(request, userEmail) {
         const link = 'http://' + host + '/validate?email=' + userEmail + '&validation_code=' + randomNumber
 
         // * Email validation link to user
-        var sendEmailResponse = null
         await sendEmail(userEmail, link)
-            .then((result) => sendEmailResponse = true)
-            .catch((error) => sendEmailResponse = false)
-
-        return sendEmailResponse
+            .then((result) => response.send('Email sent'))
+            .catch((error) => response.send('Error: Couldn\'t send email'))
     }
-    catch {
+    catch (error) {
+        // console.log(error)
         response.send('Error 10: Unexpected error accrued. Please contact admin')
         return false
     }

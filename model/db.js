@@ -12,6 +12,7 @@ const createTableQuery = `
         "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         "modified_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )`
+// TODO: "modified_at" does not updating data in db
 
 
 async function emailAlreadyValidated(userEmail) {

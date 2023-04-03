@@ -1,12 +1,26 @@
 const { giveMeValidationCode, validateEmail } = require('../model/db')
+const { emailRegexValidation, codeRegexValidation } = require('./regexValidation')
 
 
-async function validateCode(userEmail, inputValidationCode) {
+async function validateCode(request, response) {
     try {
+        // * Read email and validate code from url
+        const userEmail = request.query.email
+        const inputValidationCode = request.query.validation_code.toString()
+
+        // * Regex validation
+        const emailRegexResult = await emailRegexValidation(userEmail)
+        const codeRegexResult = await codeRegexValidation(inputValidationCode)
+        if (emailRegexResult == false || codeRegexResult == false) {
+            response.send(`Error in email validation, Email or code is wrong`)
+            return false
+        }
+
         // * Read saved validation code in database
         const savedValidationCode = await giveMeValidationCode(userEmail)
         if (savedValidationCode == null) {
             // * Email not founded
+            response.send(`Error in email validation, Email or code is wrong`)
             return false
         }
         else {
@@ -14,21 +28,22 @@ async function validateCode(userEmail, inputValidationCode) {
             if (savedValidationCode == inputValidationCode) {
                 // * Activate email
                 if (await validateEmail(userEmail) == true) {
-                    // * The email has got validate
+                    response.send(`The email ${userEmail} has got validate`)
                     return true
                 }
                 else {
-                    // * Something went wrong, email didn't validate
+                    response.send(`Error in email validation, Email or code is wrong`)
                     return false
                 }
             }
             else {
-                // * Validation code is not valid
+                response.send(`Error in email validation, Email or code is wrong`)
                 return false
             }
         }
     }
-    catch {
+    catch (error) {
+        console.log(error)
         response.send('Error 11: Unexpected error accrued. Please contact admin')
         return false
     }
