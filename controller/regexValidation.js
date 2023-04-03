@@ -12,11 +12,11 @@ function emailRegexValidation(email) {
         return false
 
     // Further checking of some things regex can't handle
-    var parts = email.split("@")
+    var parts = email.split('@')
     if (parts[0].length > 64)
         return false
 
-    var domainParts = parts[1].split(".")
+    var domainParts = parts[1].split('.')
     if (domainParts.some(function (part) { return part.length > 63 }))
         return false
 

@@ -6,12 +6,11 @@ app.use(bodyParser.json())
 
 const { sendCode } = require('./controller/sendCode')
 const { validateCode } = require('./controller/validateCode')
-const { emailRegexValidation, codeRegexValidation } = require("./controller/regexValidation.js")
+const { emailRegexValidation, codeRegexValidation } = require('./controller/regexValidation.js')
 
 
 app.post('/send', async (request, response) => {
     try {
-        console.log('1');
         const { userEmail } = request.body
 
         // * Regex validation
@@ -21,20 +20,17 @@ app.post('/send', async (request, response) => {
             response.send('Error: Can not send email. Make sure your email address is valid');
             return false
         }
-        console.log('2');
 
         const sendCodeResponse = await sendCode(request, userEmail)
 
-        console.log('3');
 
         if (sendCodeResponse == true) {
-            console.log('4');
             response.send('Email sent')
         }
         else if (sendCodeResponse == false) {
             response.send('Error: Can not send email. Make sure your email address is valid')
         }
-        else if (sendCodeResponse == "activated") {
+        else if (sendCodeResponse == 'activated') {
             response.send('Email already activated')
         }
         else {

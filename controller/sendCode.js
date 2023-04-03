@@ -7,10 +7,8 @@ async function sendCode(request, userEmail) {
         // * Check if email already validated
         if (await emailAlreadyValidated(userEmail) == true) {
             // * Already validated
-            return "activated"
+            return 'activated'
         }
-
-        console.log('2 1');
 
         // * Creating and saving random number in database
         const randomNumber = await saveCodeToDB(userEmail)
@@ -18,19 +16,15 @@ async function sendCode(request, userEmail) {
             return false
         }
 
-        console.log('2 2');
-
         // * Creating validation link to email it
         const host = request.header('host')
-        const link = "http://" + host + "/validate?email=" + userEmail + "&validation_code=" + randomNumber
+        const link = 'http://' + host + '/validate?email=' + userEmail + '&validation_code=' + randomNumber
 
         // * Email validation link to user
         var sendEmailResponse = null
         await sendEmail(userEmail, link)
             .then((result) => sendEmailResponse = true)
             .catch((error) => sendEmailResponse = false)
-
-        console.log('2 3');
 
         return sendEmailResponse
     }

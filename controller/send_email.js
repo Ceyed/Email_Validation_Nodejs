@@ -20,7 +20,7 @@ async function sendEmail(receiver, validationLink) {
             service: 'gmail',
             host: 'smtp.gmail.com',
             tls: {
-                ciphers: "SSLv3",
+                ciphers: 'SSLv3',
                 rejectUnauthorized: false,
             },
             auth: {
@@ -37,8 +37,8 @@ async function sendEmail(receiver, validationLink) {
         const mailOptions = {
             from: 'Ceyed <noreply@gmail.com>',                              // TODO: Change 'Ceyed <noreply@gmail.com>'
             to: receiver,
-            subject: "Please confirm your email account",
-            html: "<h3> Hello There <br> Please click on the link bellow to validate your email: <br><a href=" + validationLink + ">Click here to validate</a><br><br> Respectfully <br> Ceyed | https://github.com/Ceyed <br></h3>"
+            subject: 'Please confirm your email account',
+            html: '<h3> Hello There <br> Please click on the link bellow to validate your email: <br><a href=' + validationLink + '>Click here to validate</a><br><br> Respectfully <br> Ceyed | https://github.com/Ceyed <br></h3>'
         }
 
         // * Send email
